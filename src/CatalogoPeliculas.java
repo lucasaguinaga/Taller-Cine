@@ -50,4 +50,56 @@ public class CatalogoPeliculas {
             }
         }
     }
+
+    public int buscarIndicePorCodigo(int codigo) {
+        if (codigo <= 0) {
+            throw new IllegalArgumentException("El código debe ser un número positivo.");
+        }
+        int inicio = 0;
+        int fin = peliculas.size() - 1;
+
+        while (inicio <= fin) {
+            int medio = (inicio + fin) / 2;
+            int codigoMedio = peliculas.get(medio).getCodigo();
+
+            if (codigoMedio == codigo) {
+                return medio;
+            } else if (codigoMedio < codigo) {
+                inicio = medio + 1;
+            } else {
+                fin = medio - 1;
+            }
+        }
+        return -1;
+    }
+
+
+    public Pelicula obtenerPorCodigo(int codigo) {
+        int indice = buscarIndicePorCodigo(codigo);
+        if (indice == -1) {
+            return null;
+        }
+        return peliculas.get(indice);
+    }
+
+
+    public ArrayList<Pelicula> buscarCoincidencias(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException("Escriba un texto para buscar.");
+        }
+        String consulta = texto.trim().toLowerCase();
+        ArrayList<Pelicula> resultados = new ArrayList<>();
+
+        for (int i = 0; i < peliculas.size(); i++) {
+            Pelicula p = peliculas.get(i);
+            boolean enTitulo = p.getTitulo().toLowerCase().contains(consulta);
+            boolean enDirector = p.getDirector().toLowerCase().contains(consulta);
+
+            if (enTitulo || enDirector) {
+                resultados.add(p);
+            }
+        }
+        return resultados;
+    }
 }
+
