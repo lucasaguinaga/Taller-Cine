@@ -151,5 +151,35 @@ public class CatalogoPeliculas {
         p.setGenero(genero);
         p.setAnio(anio);
     }
+
+    public void darMeGusta(int codigo) {
+        int indice = buscarIndicePorCodigo(codigo);
+        if (indice == -1) {
+            throw new IllegalArgumentException("No existe una película con el código " + codigo + ".");
+        }
+        peliculas.get(indice).incrementarMeGusta();
+    }
+
+    public ArrayList<Pelicula> obtenerRanking() {
+        ArrayList<Pelicula> ranking = new ArrayList<>(peliculas);
+
+        int n = ranking.size();
+        for (int i = 0; i < n - 1; i++) {
+            boolean huboCambio = false;
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (ranking.get(j).getMeGusta() < ranking.get(j + 1).getMeGusta()) {
+                    Pelicula auxiliar = ranking.get(j);
+                    ranking.set(j, ranking.get(j + 1));
+                    ranking.set(j + 1, auxiliar);
+                    huboCambio = true;
+                }
+            }
+            if (!huboCambio) {
+                break;
+            }
+        }
+        return ranking;
+    }
+
 }
 
