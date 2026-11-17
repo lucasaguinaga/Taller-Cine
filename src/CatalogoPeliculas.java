@@ -4,39 +4,26 @@ import java.util.ArrayList;
 
 public class CatalogoPeliculas {
 
-    // Géneros permitidos (los mismos del JComboBox)
     public static final String[] GENEROS = {
             "Ciencia ficción", "Drama", "Aventura", "Comedia",
             "Animación", "Suspenso", "Documental"
     };
 
-    // Lista principal: SIEMPRE ordenada por código ascendente
     private ArrayList<Pelicula> peliculas;
 
-
-    // Constructor: se carga una sola vez y se ordena por código
 
     public CatalogoPeliculas() {
         peliculas = DatosIniciales.cargar();
         ordenarPorCodigoBurbuja();
     }
 
-
-    // Consultas básicas
-
     public int getTotal() {
         return peliculas.size();
     }
 
-
     public ArrayList<Pelicula> getPeliculas() {
         return new ArrayList<>(peliculas);
     }
-
-
-    // Ordenamiento burbuja por código (ascendente)
-
-    // Ordenamiento burbuja por código (ascendente)
 
     public void ordenarPorCodigoBurbuja() {
         Pelicula aux;
@@ -100,6 +87,69 @@ public class CatalogoPeliculas {
             }
         }
         return resultados;
+    }
+
+    private void validarDatos(String titulo, String director, String genero, int anio) {
+        if (titulo == null || titulo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El título es obligatorio.");
+        }
+        if (director == null || director.trim().isEmpty()) {
+            throw new IllegalArgumentException("El director es obligatorio.");
+        }
+        if (genero == null || !generoValido(genero)) {
+            throw new IllegalArgumentException("Seleccione un género válido.");
+        }
+        int anioActual = Year.now().getValue();
+        if (anio < 1 || anio > anioActual) {
+            throw new IllegalArgumentException("El año debe estar entre 1 y " + anioActual + ".");
+        }
+    }
+
+    private boolean generoValido(String genero) {
+        for (int i = 0; i < GENEROS.length; i++) {
+            if (GENEROS[i].equals(genero)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void registrar(Pelicula pelicula) {
+        if (pelicula == null) {
+            throw new IllegalArgumentException("La película no puede ser nula.");
+        }
+        if (pelicula.getCodigo() <= 0) {
+            throw new IllegalArgumentException("El código debe ser un número positivo.");
+        }
+        if (buscarIndicePorCodigo(pelicula.getCodigo()) != -1) {
+            throw new IllegalArgumentException("Ya existe una película con el código "
+                    + pelicula.getCodigo() + ".");
+        }
+        if (pelicula.getMeGusta() != 0) {
+            throw new IllegalArgumentException("Una película nueva debe iniciar con 0 me gusta.");
+        }
+
+        validarDatos(pelicula.getTitulo(), pelicula.getDirector(),
+                pelicula.getGenero(), pelicula.getAnio());
+
+        peliculas.add(pelicula);
+        ordenarPorCodigoBurbuja();
+    }
+
+    public void editarPelicula(int codigo, String titulo, String director,
+                               String genero, int anio) {
+        int indice = buscarIndicePorCodigo(codigo);
+        if (indice == -1) {
+            throw new IllegalArgumentException("No existe una película con el código " + codigo + ".");
+        }
+
+        validarDatos(titulo, director, genero, anio);
+
+        Pelicula p = peliculas.get(indice);
+        p.setTitulo(titulo.trim());
+        p.setDirector(director.trim());
+        p.setGenero(genero);
+        p.setAnio(anio);
     }
 }
 
